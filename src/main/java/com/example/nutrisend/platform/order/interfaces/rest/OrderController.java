@@ -2,11 +2,13 @@ package com.example.nutrisend.platform.order.interfaces.rest;
 
 import com.example.nutrisend.platform.order.domain.model.aggregates.Order;
 import com.example.nutrisend.platform.order.domain.model.commands.CreateOrderCommand;
+import com.example.nutrisend.platform.order.domain.model.commands.DeleteOrderCommand;
+import com.example.nutrisend.platform.order.domain.model.commands.UpdateOrderCommand;
 import com.example.nutrisend.platform.order.domain.model.queries.GetOrdersByIdQuery;
 import com.example.nutrisend.platform.order.domain.services.OrderCommandService;
 import com.example.nutrisend.platform.order.domain.services.OrderQueryService;
-import com.example.nutrisend.platform.order.rest.resources.CreateOrderResource;
-import com.example.nutrisend.platform.order.rest.resources.OrderResource;
+import com.example.nutrisend.platform.order.interfaces.rest.resources.CreateOrderResource;
+import com.example.nutrisend.platform.order.interfaces.rest.resources.OrderResource;
 import com.example.nutrisend.platform.order.interfaces.rest.transform.CreateOrderCommandFromResourceAssembler;
 import com.example.nutrisend.platform.order.interfaces.rest.transform.OrderResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,17 +47,23 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResource> createOrder(@RequestBody CreateOrderResource resource) {
         CreateOrderCommand command = CreateOrderCommandFromResourceAssembler.toCommandFromResource(resource);
-        Optional<Order> orderItem = orderCommandService.handle(command);
-        return orderItem.map(order -> new ResponseEntity<>(OrderResourceFromEntityAssembler.toResourceFromEntity(order), CREATED))
+
+        Optional<Order> savedOrder = orderCommandService.handle(command); // Definición de la variable savedOrder
+
+        return savedOrder.map(o -> new ResponseEntity<>(OrderResourceFromEntityAssembler.toResourceFromEntity(o), CREATED))
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     @Operation(
-            summary = "Get order by ID",
+            summary = "Get an order by ID",
             description = "Retrieve a specific order by its unique ID"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order found"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
     @GetMapping("{id}")
-    public ResponseEntity<OrderResource> getOrderById(@PathVariable String id) {
+    public ResponseEntity<OrderResource> getOrderById(@PathVariable Long id) {
         Optional<Order> orderItem = orderQueryService.handle(new GetOrdersByIdQuery(id));
         return orderItem.map(order -> ResponseEntity.ok(OrderResourceFromEntityAssembler.toResourceFromEntity(order)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -65,6 +73,10 @@ public class OrderController {
             summary = "Get all orders",
             description = "Retrieve all orders"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Orders retrieved"),
+            @ApiResponse(responseCode = "404", description = "No orders found")
+    })
     @GetMapping
     public ResponseEntity<List<OrderResource>> getAllOrders() {
         List<Order> orders = orderQueryService.getAllOrders();
@@ -72,5 +84,40 @@ public class OrderController {
                 .map(OrderResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(orderResources);
+    }
+
+    @Operation(
+            summary = "Update an order",
+            description = "Update a specific order by its unique ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order updated"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    @PutMapping("{id}")
+    public ResponseEntity<OrderResource> updateOrder(@PathVariable Long id, @RequestBody UpdateOrderCommand command) {
+        if (!command.orderId().equals(id)) {
+            return ResponseEntity.badRequest().build(); // Verifica que el ID del pedido coincida
+        }
+
+        Optional<Order> updatedOrder = orderCommandService.update(command); // Implementa el método update en OrderCommandService
+        return updatedOrder.map(order -> ResponseEntity.ok(OrderResourceFromEntityAssembler.toResourceFromEntity(order)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(
+            summary = "Delete an order",
+            description = "Delete a specific order by its unique ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Order deleted"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        DeleteOrderCommand command = new DeleteOrderCommand(id);
+        boolean deleted = orderCommandService.delete(command); // Implementa el método delete en OrderCommandService
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
