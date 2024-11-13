@@ -1,4 +1,4 @@
-package com.example.nutrisend.platform.order.rest;
+package com.example.nutrisend.platform.order.interfaces.rest;
 
 import com.example.nutrisend.platform.order.domain.model.aggregates.Order;
 import com.example.nutrisend.platform.order.domain.model.commands.CreateOrderCommand;
@@ -7,8 +7,8 @@ import com.example.nutrisend.platform.order.domain.services.OrderCommandService;
 import com.example.nutrisend.platform.order.domain.services.OrderQueryService;
 import com.example.nutrisend.platform.order.rest.resources.CreateOrderResource;
 import com.example.nutrisend.platform.order.rest.resources.OrderResource;
-import com.example.nutrisend.platform.order.rest.transform.CreateOrderCommandFromResourceAssembler;
-import com.example.nutrisend.platform.order.rest.transform.OrderResourceFromEntityAssembler;
+import com.example.nutrisend.platform.order.interfaces.rest.transform.CreateOrderCommandFromResourceAssembler;
+import com.example.nutrisend.platform.order.interfaces.rest.transform.OrderResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

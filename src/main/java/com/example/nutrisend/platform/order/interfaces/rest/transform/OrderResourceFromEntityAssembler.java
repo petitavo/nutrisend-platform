@@ -1,4 +1,4 @@
-package com.example.nutrisend.platform.order.rest.transform;
+package com.example.nutrisend.platform.order.interfaces.rest.transform;
 
 import com.example.nutrisend.platform.order.domain.model.aggregates.Order;
 import com.example.nutrisend.platform.order.rest.resources.OrderItemResource;
