@@ -10,9 +10,7 @@ public class CreateOrderCommandFromResourceAssembler {
                 resource.userId(),
                 resource.items().stream()
                         .map(item -> new CreateOrderItemCommand(
-                                item.name(),
-                                item.price(),
-                                item.category(),
+                                item.id(),
                                 item.quantity()
                         ))
                         .toList()
