@@ -1,4 +1,4 @@
-package com.example.nutrisend.platform.order.internal;
+package com.example.nutrisend.platform.order.application.internal;
 import com.example.nutrisend.platform.order.domain.model.aggregates.Order;
 import com.example.nutrisend.platform.order.domain.model.queries.GetOrdersByIdQuery;
 import com.example.nutrisend.platform.order.domain.services.OrderQueryService;
