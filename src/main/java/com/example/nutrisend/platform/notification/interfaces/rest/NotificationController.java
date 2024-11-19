@@ -8,8 +8,10 @@ import com.example.nutrisend.platform.notification.domain.services.NotificationC
 import com.example.nutrisend.platform.notification.domain.services.NotificationQueryService;
 import com.example.nutrisend.platform.notification.interfaces.rest.resources.CreateNotificationResource;
 import com.example.nutrisend.platform.notification.interfaces.rest.resources.NotificationResource;
+import com.example.nutrisend.platform.notification.interfaces.rest.resources.UpdateNotificationResource;
 import com.example.nutrisend.platform.notification.interfaces.rest.transform.CreateNotificationResourceFromResourceAssembler;
 import com.example.nutrisend.platform.notification.interfaces.rest.transform.NotificationResourceFromEntityAssembler;
+import com.example.nutrisend.platform.notification.interfaces.rest.transform.UpdateNotificationCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -85,4 +87,21 @@ public class NotificationController {
         var notificationResource = NotificationResourceFromEntityAssembler.toResourceFromEntity(notificationEntity);
         return new ResponseEntity<>(notificationResource, HttpStatus.CREATED);
     }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update notification", description = "Update notification")
+    @ApiResponses( value =  {
+            @ApiResponse(responseCode = "200", description = "Notification updated"),
+            @ApiResponse(responseCode = "404", description = "Notification not found")
+    })
+    public ResponseEntity<NotificationResource> updateNotification(@PathVariable("id") Long id, @RequestBody UpdateNotificationResource resource) {
+        var updateNotificationCommand = UpdateNotificationCommandFromResourceAssembler.toCommandFromResource(id, resource);
+        var updateNotification = notificationCommandService.handle(updateNotificationCommand);
+        if (updateNotification.isEmpty()) return ResponseEntity.notFound().build();
+        var updatedNotificationEntity = updateNotification.get();
+        var updatedNotificationResource = NotificationResourceFromEntityAssembler.toResourceFromEntity(updatedNotificationEntity);
+        return ResponseEntity.ok(updatedNotificationResource);
+    }
+
+
 }

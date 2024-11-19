@@ -41,6 +41,25 @@ public class Notification {
     }
 
 
+    public Notification(CreateNotificationCommand command) {
+        this.userId = command.userId();
+        this.email = command.email();
+        this.message = command.message();
+        this.typeId = command.typeId();
+        this.active = command.active();
+        this.notificationTime = command.notificationTime();
+    }
+
+    public Notification updateNotification(Long userId, String email, String message, Long typeId, boolean active, LocalTime notificationTime) {
+        this.userId = userId;
+        this.email = email;
+        this.message = message;
+        this.typeId = typeId;
+        this.active = active;
+        this.notificationTime = notificationTime;
+        return this;
+    }
+
     public Long getId() {
         return id;
     }

@@ -15,4 +15,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Optional<Notification> findById(Long id);
 
     List<Notification> findByActive(Boolean active);
+
+    boolean existsByTypeIdAndIdIsNot(Long typeId, Long id);
 }
